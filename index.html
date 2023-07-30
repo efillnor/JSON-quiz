@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Quiz</title>
+    <style>
+        label {
+            display: block;
+        }
+
+        body {
+            max-width: 500px;
+            margin: 0 auto;
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="quiz-container">
+        
+    </div>
+
+    <script type="text/javascript">
+
+        var json_data = '{"quiz":{"q1":{"question":"Which one is correct team name in NBA?","options":["New York Bulls","Los Angeles Kings","Golden State Warriros","Huston Rocket"],"answer":"Huston Rocket"},"q2":{"question":" Namaste is a traditional greeting in which Asian language?","options":["Hindi","Mandarin","Nepalese","Thai"],"answer":"Hindi"},"q3":{"question":"The Spree river flows through which major European capital city?","options":["Berlin","Paris","Rome","London"],"answer":"Berlin"},"q4":{"question":"Which famous artist had both a Rose Period and a Blue Period ?","options":["Pablo Picasso","Vincent van Gogh","Salvador Dalí","Edgar Degas"],"answer":"Pablo Picasso"}}}';
+
+
+        var data = JSON.parse(json_data);
+
+        var quizContainer = document.getElementById('quiz-container');
+
+        
+        var j = 0;
+        for (var questionKey in data.quiz) {
+            if (data.quiz.hasOwnProperty(questionKey)) {
+                var question = data.quiz[questionKey];
+                var questionText = question.question;
+                j++;
+
+                var questionElement = document.createElement('div');
+                questionElement.innerHTML = '<h3> Question ' + j + ' : ' + questionText + '</h3>';
+
+                var options = question.options;
+                for (var i = 0; i < options.length; i++) {
+                    var optionLabel = document.createElement('label');
+                    var option = options[i];
+
+                    var radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = questionKey;
+                    radioInput.value = option;
+
+                    optionLabel.appendChild(radioInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+
+                    questionElement.appendChild(optionLabel);
+                }
+
+                quizContainer.appendChild(questionElement);
+            }
+        }
+
+        
+        var savedAnswers = localStorage.getItem('quizAnswers');
+        if (savedAnswers) {
+            var parsedAnswers = JSON.parse(savedAnswers);
+            for (var questionKey in parsedAnswers) {
+                if (parsedAnswers.hasOwnProperty(questionKey)) {
+                    var selectedOption = document.querySelector('input[name="' + questionKey + '"][value="' + parsedAnswers[questionKey] + '"]');
+                    if (selectedOption) {
+                        selectedOption.checked = true;
+                    }
+                }
+            }
+        }
+
+        
+        var radioInputs = document.querySelectorAll('input[type="radio"]');
+        radioInputs.forEach(function (radioInput) {
+            radioInput.addEventListener('click', function () {
+                var questionKey = radioInput.name;
+                var selectedAnswer = radioInput.value;
+
+                var selectedAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+                selectedAnswers[questionKey] = selectedAnswer;
+
+                localStorage.setItem('quizAnswers', JSON.stringify(selectedAnswers));
+            });
+
+            
+            if (radioInput.checked) {
+                var event = new Event('click');
+                radioInput.dispatchEvent(event);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
